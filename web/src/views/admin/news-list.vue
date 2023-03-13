@@ -48,7 +48,9 @@
             </a-layout-sider>
             <a-layout-content :style="{ padding: '0 24px', minHeight: '280px' }">
                 新闻首页
-
+                <p>
+                    <a-button type="primary" @click="add">添加</a-button>
+                </p>
                 <a-table :dataSource="newsList"
                          :columns="columns"
                          :pagination="pagination"
