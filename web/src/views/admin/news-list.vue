@@ -110,6 +110,7 @@ tsconfig.json
     // vue v-m 双向绑定   vue3使用ref作为“中介”
     import { defineComponent,onMounted,ref} from 'vue';
     import axios from 'axios';
+    import {message} from "ant-design-vue";
 
     export default {
         name: 'newsList',
@@ -180,11 +181,25 @@ tsconfig.json
             //弹出添加模式窗口
             const add=()=>{
                 modalVisible.value=true;
-            }
+                //初始化news对象
+                news.value={};
+            };
 
             // 模式窗口确定按钮触发的函数
             const handleModalOK=()=>{
-                console.log('');
+                axios.post('http://localhost:8899/news-edit/saveNews',news.value).then(response=>{
+                    if (response.data.code===200){
+                        modalVisible.value=false;
+                        //加载最新数据
+                        handleQuery({
+                            page:pagination.value.current,
+                            size:pagination.value.pageSize
+                        });
+                    }else {
+                        message.error(response.data.message);
+                    }
+                });
+
             };
 
             // 查询新闻类别列表
@@ -215,7 +230,8 @@ tsconfig.json
                 modalVisible,
                 add,
                 handleLoadNewsCategory,
-                categoryList
+                categoryList,
+                handleModalOK
             }
         }
     }
