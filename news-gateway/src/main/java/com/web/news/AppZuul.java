@@ -21,7 +21,7 @@ public class AppZuul {
 		SpringApplication.run(AppZuul.class, args);
 	}
 
-/*	@Bean //解决跨域问题
+	@Bean //解决跨域问题
 	public CorsFilter corsFilter() {
 
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -40,5 +40,5 @@ public class AppZuul {
         source.registerCorsConfiguration("/**", config);
         
         return new CorsFilter(source);
-	}*/
+	}
 }
