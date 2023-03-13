@@ -69,6 +69,31 @@
         </a-layout>
     </a-layout-content>
 
+    <a-modal v-model:visible="modalVisible"
+             title="新闻编辑表单"
+             @ok="handleModalOK"
+             cancel-text="取消"
+             ok-text="确定">
+        <a-form :model="news" :label-col="{ span: 6 }" :wrapper-col="{ span: 16 }">
+            <a-form-item label="新闻类别">
+                <a-select v-model:value="news.categoryid">
+                    <a-select-option v-for="item in categoryList" :value="item.id" :key="item.id">
+                        {{item.cname}}
+                    </a-select-option>
+                </a-select>
+            </a-form-item>
+            <a-form-item label="标题">
+                <a-input v-model:value="news.title" />
+            </a-form-item>
+            <a-form-item label="新闻摘要">
+                <a-input v-model:value="news.summary"/>
+            </a-form-item>
+            <a-form-item label="作者">
+                <a-input v-model:value="news.author" />
+            </a-form-item>
+        </a-form>
+    </a-modal>
+
 </template>
 
 <!--
@@ -92,7 +117,7 @@ tsconfig.json
 
             //定义一个新闻的列表（绑定前端table）
             const newsList = ref();
-            //const news = ref({});
+            const news = ref({});
 
             const columns = [
                 {
@@ -120,7 +145,13 @@ tsconfig.json
                 pageSize:3,
                 total:0
             });
+
+
             const loading = ref<boolean>(false);
+
+            const modalVisible = ref<boolean>(false);
+            const categoryList = ref();
+
             const handleQuery=(params:any)=>{//查询新闻列表的函数
                 loading.value = true;
                 axios.get('http://localhost:8899/news-query/listByPage',{
@@ -146,21 +177,45 @@ tsconfig.json
                 });
             };
 
+            //弹出添加模式窗口
+            const add=()=>{
+                modalVisible.value=true;
+            }
+
+            // 模式窗口确定按钮触发的函数
+            const handleModalOK=()=>{
+                console.log('');
+            };
+
+            // 查询新闻类别列表
+            const handleLoadNewsCategory=()=>{
+                axios.get('http://localhost:8899/news-query/findAllCategory').then(response=>{
+                    categoryList.value = response.data;
+                });
+            };
+
+
             onMounted(()=>{
                 handleQuery({
                     page:1,
                     size:pagination.value.pageSize
                 });
+               handleLoadNewsCategory();
             });
 
             return{
                 //返回模型数据和函数
                 newsList,
+                news,
                 columns,
                 handleQuery,
                 pagination,
                 handleTableChange,
-                loading
+                loading,
+                modalVisible,
+                add,
+                handleLoadNewsCategory,
+                categoryList
             }
         }
     }
