@@ -58,8 +58,16 @@
                          @change="handleTableChange">
 
                     <template v-slot:action="{text,record}">
-                        <a-button type="primary">编辑</a-button>
-                        <a-button type="danger">删除</a-button>
+                        <a-button type="primary" @click="edit(record)">编辑</a-button>
+                        <a-popconfirm
+                                title="删除后无法恢复，确认删除?"
+                                ok-text="是"
+                                cancel-text="否"
+                                @confirm="del(record.id)"
+                        >
+
+                            <a-button type="danger">删除</a-button>
+                        </a-popconfirm>
 
                     </template>
 
@@ -111,6 +119,7 @@ tsconfig.json
     import { defineComponent,onMounted,ref} from 'vue';
     import axios from 'axios';
     import {message} from "ant-design-vue";
+    import {Tool} from "@/utils/tool";
 
     export default {
         name: 'newsList',
@@ -185,6 +194,12 @@ tsconfig.json
                 news.value={};
             };
 
+            //弹出编辑模式窗口
+            const edit=(record:any)=>{
+                modalVisible.value=true;
+                news.value=Tool.copy(record); // 复制对象
+            }
+
             // 模式窗口确定按钮触发的函数
             const handleModalOK=()=>{
                 axios.post('http://localhost:8899/news-edit/saveNews',news.value).then(response=>{
@@ -206,6 +221,21 @@ tsconfig.json
             const handleLoadNewsCategory=()=>{
                 axios.get('http://localhost:8899/news-query/findAllCategory').then(response=>{
                     categoryList.value = response.data;
+                });
+            };
+
+            // 提交删除
+            const del=(id:number)=>{
+                axios.delete('http://localhost:8899/news-edit/deleteNews/' +id).then(response=>{
+                    if (response.data.code===200){
+                        //加载最新数据
+                        handleQuery({
+                            page:pagination.value.current,
+                            size:pagination.value.pageSize
+                        });
+                    }else {
+                        message.error(response.data.message);
+                    }
                 });
             };
 
@@ -231,7 +261,9 @@ tsconfig.json
                 add,
                 handleLoadNewsCategory,
                 categoryList,
-                handleModalOK
+                handleModalOK,
+                edit,
+                del
             }
         }
     }
